@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 
 from ...extensions import db
