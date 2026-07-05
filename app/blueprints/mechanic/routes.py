@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 
-from ...extensions import db
-from ...models import Mechanic
+from ...models import db, Mechanic
 from . import mechanic_bp
 from .schemas import mechanic_schema, mechanics_schema
 

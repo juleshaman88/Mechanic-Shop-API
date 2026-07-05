@@ -1,5 +1,7 @@
+import os
+
 from app import create_app
-from app.extensions import db
+from app.models import db
 from flask import Flask
 
 app = create_app('DevelopmentConfig')
@@ -9,4 +11,4 @@ with app.app_context():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", "5000")))

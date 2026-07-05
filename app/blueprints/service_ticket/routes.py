@@ -1,8 +1,7 @@
 from flask import jsonify, request
 from marshmallow import ValidationError
 
-from ...extensions import db
-from ...models import Mechanic, ServiceTicket
+from ...models import db, Mechanic, ServiceTicket
 from . import service_ticket_bp
 from .schemas import service_ticket_schema, service_tickets_schema
 
