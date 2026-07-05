@@ -9,6 +9,7 @@ class ServiceTicketSchema(ma.SQLAlchemyAutoSchema):
         model = ServiceTicket
         load_instance = False
         include_relationships = True
+        exclude = ("mechanics",)
 
     mechanic_ids = fields.Method("get_mechanic_ids", dump_only=True)
 
