@@ -10,7 +10,7 @@ from .schemas import inventories_schema, inventory_schema
 
 @inventory_bp.route("/", methods=["POST"])
 @mechanic_token_required
-def create_inventory_item():
+def create_inventory_item(mechanic_id):
     try:
         inventory_data = inventory_schema.load(request.get_json())
     except ValidationError as err:
@@ -41,7 +41,7 @@ def get_inventory_item(inventory_id):
 
 @inventory_bp.route("/<int:inventory_id>", methods=["PUT"])
 @mechanic_token_required
-def update_inventory_item(inventory_id):
+def update_inventory_item(mechanic_id, inventory_id):
     inventory_item = db.session.get(Inventory, inventory_id)
     if inventory_item is None:
         return jsonify({"error": "Inventory item not found."}), 404
@@ -61,7 +61,7 @@ def update_inventory_item(inventory_id):
 
 @inventory_bp.route("/<int:inventory_id>", methods=["DELETE"])
 @mechanic_token_required
-def delete_inventory_item(inventory_id):
+def delete_inventory_item(mechanic_id, inventory_id):
     inventory_item = db.session.get(Inventory, inventory_id)
     if inventory_item is None:
         return jsonify({"error": "Inventory item not found."}), 404

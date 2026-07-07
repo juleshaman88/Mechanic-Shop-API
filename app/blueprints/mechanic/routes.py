@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ...extensions import cache, limiter
@@ -11,12 +12,15 @@ from .schemas import mechanic_login_schema, mechanic_schema, mechanics_schema
 
 
 @mechanic_bp.route("/", methods=["POST"])
-@limiter.limit("5 per hour")
 def create_mechanic():
     try:
         mechanic_data = mechanic_schema.load(request.get_json())
     except ValidationError as err:
         return jsonify(err.messages), 400
+
+    existing_mechanic = db.session.query(Mechanic).filter_by(email=mechanic_data["email"]).first()
+    if existing_mechanic is not None:
+        return jsonify({"error": "A mechanic with that email already exists."}), 409
 
     if not mechanic_data.get("password"):
         mechanic_data["password"] = generate_password_hash(mechanic_data["email"])
@@ -26,7 +30,12 @@ def create_mechanic():
     mechanic = Mechanic(**mechanic_data)
 
     db.session.add(mechanic)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "A mechanic with that email already exists."}), 409
+
     cache.clear()
     return mechanic_schema.jsonify(mechanic), 201
 
@@ -34,7 +43,15 @@ def create_mechanic():
 @mechanic_bp.route("/", methods=["GET"])
 @cache.cached(timeout=60)
 def get_mechanics():
-    mechanics = db.session.query(Mechanic).all()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+
+    pagination = db.session.query(Mechanic).order_by(Mechanic.id).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False,
+    )
+    mechanics = pagination.items
     return mechanics_schema.jsonify(mechanics), 200
 
 
@@ -71,7 +88,7 @@ def get_mechanics_ranked_by_tickets():
 
 @mechanic_bp.route("/<int:id>", methods=["PUT"])
 @mechanic_token_required
-def update_mechanic(id):
+def update_mechanic(mechanic_id, id):
     mechanic = db.session.get(Mechanic, id)
     if mechanic is None:
         return jsonify({"error": "Mechanic not found."}), 404
@@ -92,7 +109,7 @@ def update_mechanic(id):
 @mechanic_bp.route("/<int:id>", methods=["DELETE"])
 @limiter.limit("2 per hour")
 @mechanic_token_required
-def delete_mechanic(id):
+def delete_mechanic(mechanic_id, id):
     mechanic = db.session.get(Mechanic, id)
     if mechanic is None:
         return jsonify({"error": "Mechanic not found."}), 404
