@@ -6,6 +6,7 @@ DB_PASSWORD = urllib.parse.quote_plus(os.getenv("DB_PASSWORD", "Ravioli@2012?!?!
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "mechanic_api")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 class BaseConfig:

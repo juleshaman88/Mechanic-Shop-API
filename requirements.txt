@@ -1,0 +1,8 @@
+Flask
+Flask-Caching
+Flask-Limiter
+Flask-Marshmallow
+Flask-SQLAlchemy
+marshmallow
+mysql-connector-python
+python-jose
