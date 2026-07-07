@@ -1,13 +1,15 @@
 from flask import jsonify, request
+from sqlalchemy import select
 from marshmallow import ValidationError
 
-from ...extensions import cache
-from ...models import Inventory, Mechanic, ServiceTicket, db
+from ...extensions import cache, limiter
+from ...models import Customer, Inventory, Mechanic, ServiceTicket, db
 from . import service_ticket_bp
 from .schemas import service_ticket_schema, service_tickets_schema
 
 
 @service_ticket_bp.route("/", methods=["POST"])
+@limiter.limit("25 per hour")
 def create_service_ticket():
     try:
         service_ticket_data = service_ticket_schema.load(request.get_json())
@@ -22,23 +24,20 @@ def create_service_ticket():
     return service_ticket_schema.jsonify(service_ticket), 201
 
 
-@service_ticket_bp.route("/<int:ticket_id>/assign-mechanic/<int:mechanic_id>", methods=["PUT"])
-def assign_mechanic(ticket_id, mechanic_id):
-    ticket = db.session.get(ServiceTicket, ticket_id)
-    if ticket is None:
-        return jsonify({"error": "Service ticket not found."}), 404
-
-    mechanic = db.session.get(Mechanic, mechanic_id)
-    if mechanic is None:
-        return jsonify({"error": "Mechanic not found."}), 404
-
-    if mechanic in ticket.mechanics:
-        return jsonify({"message": "Mechanic already assigned to this ticket."}), 200
-
-    ticket.mechanics.append(mechanic)
-    db.session.commit()
-    cache.clear()
-    return service_ticket_schema.jsonify(ticket), 200
+@service_ticket_bp.route("/", methods=["GET"])
+@cache.cached(timeout=60)
+def get_service_tickets():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        query = select(ServiceTicket)
+        service_tickets = db.paginate(query, page=page, per_page=per_page)
+        return service_tickets_schema.jsonify(service_tickets.items), 200
+    
+    except:
+        query = select(ServiceTicket)
+        service_tickets = db.session.execute(query).scalars().all()
+        return service_tickets_schema.jsonify(service_tickets), 200
 
 
 @service_ticket_bp.route("/<int:ticket_id>/remove-mechanic/<int:mechanic_id>", methods=["PUT"])
@@ -107,8 +106,65 @@ def add_part_to_ticket(ticket_id, inventory_id):
     return service_ticket_schema.jsonify(ticket), 200
 
 
-@service_ticket_bp.route("/", methods=["GET"])
-@cache.cached(timeout=180)
-def get_service_tickets():
-    tickets = db.session.query(ServiceTicket).all()
-    return service_tickets_schema.jsonify(tickets), 200
+@service_ticket_bp.route("/<int:ticket_id>/edit-parts", methods=["PUT"])
+def edit_parts_on_ticket(ticket_id):
+    ticket = db.session.get(ServiceTicket, ticket_id)
+    if ticket is None:
+        return jsonify({"error": "Service ticket not found."}), 404
+
+    payload = request.get_json() or {}
+    add_part_ids = payload.get("add_part_ids", [])
+    remove_part_ids = payload.get("remove_part_ids", [])
+
+    for inventory_id in add_part_ids:
+        part = db.session.get(Inventory, inventory_id)
+        if part is None:
+            return jsonify({"error": f"Inventory item {inventory_id} not found."}), 404
+        if part not in ticket.inventory:
+            ticket.inventory.append(part)
+
+    for inventory_id in remove_part_ids:
+        part = db.session.get(Inventory, inventory_id)
+        if part is None:
+            return jsonify({"error": f"Inventory item {inventory_id} not found."}), 404
+        if part in ticket.inventory:
+            ticket.inventory.remove(part)
+
+    db.session.commit()
+    cache.clear()
+    return service_ticket_schema.jsonify(ticket), 200
+
+
+@service_ticket_bp.route("/<int:ticket_id>/assign-customer/<int:customer_id>", methods=["PUT"])
+def assign_customer(ticket_id, customer_id):
+    ticket = db.session.get(ServiceTicket, ticket_id)
+    if ticket is None:
+        return jsonify({"error": "Service ticket not found."}), 404
+
+    customer = db.session.get(Customer, customer_id)
+    if customer is None:
+        return jsonify({"error": "Customer not found."}), 404
+
+    ticket.customer_id = customer.id
+    db.session.commit()
+    cache.clear()
+    return service_ticket_schema.jsonify(ticket), 200
+    
+
+@service_ticket_bp.route("/<int:ticket_id>/assign-mechanic/<int:mechanic_id>", methods=["PUT"])
+def assign_mechanic(ticket_id, mechanic_id):
+    ticket = db.session.get(ServiceTicket, ticket_id)
+    if ticket is None:
+        return jsonify({"error": "Service ticket not found."}), 404
+
+    mechanic = db.session.get(Mechanic, mechanic_id)
+    if mechanic is None:
+        return jsonify({"error": "Mechanic not found."}), 404
+
+    if mechanic in ticket.mechanics:
+        return jsonify({"message": "Mechanic already assigned to this ticket."}), 200
+
+    ticket.mechanics.append(mechanic)
+    db.session.commit()
+    cache.clear()
+    return service_ticket_schema.jsonify(ticket), 200

@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from marshmallow import ValidationError
+from sqlalchemy import select
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ...extensions import limiter, cache
@@ -11,7 +12,7 @@ from ..service_ticket.schemas import service_tickets_schema
 
 
 @customer_bp.route("/", methods=["POST"])
-@limiter.limit("5 per hour")
+@limiter.limit("25 per hour")
 def create_customer():
     try:
         customer_data = customer_schema.load(request.get_json())
@@ -27,7 +28,7 @@ def create_customer():
 
 
 @customer_bp.route("/login", methods=["POST"])
-@limiter.limit("5 per half hour")
+@limiter.limit("25 per half hour")
 def login_customer():
     try:
         login_data = login_schema.load(request.get_json())
@@ -43,26 +44,19 @@ def login_customer():
 
 
 @customer_bp.route("/", methods=["GET"])
-@cache.cached(timeout=360)
+@cache.cached(timeout=15)
 def get_customers():
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 10, type=int)
-
-    pagination = db.session.query(Customer).order_by(Customer.id).paginate(
-        page=page,
-        per_page=per_page,
-        error_out=False,
-    )
-
-    return jsonify(
-        {
-            "customers": customers_schema.dump(pagination.items),
-            "page": pagination.page,
-            "per_page": pagination.per_page,
-            "total": pagination.total,
-            "pages": pagination.pages,
-        }
-    ), 200
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        query = select(Customer)
+        customers = db.paginate(query, page=page, per_page=per_page)
+        return customers_schema.jsonify(customers.items), 200
+    
+    except:
+        query = select(Customer)
+    customers = db.session.execute(query).scalars().all()
+    return customers_schema.jsonify(customers), 200
 
 
 @customer_bp.route("/my-tickets", methods=["GET"])

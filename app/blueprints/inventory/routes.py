@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from sqlalchemy import select
 from marshmallow import ValidationError
 
 from ...extensions import cache
@@ -24,10 +25,22 @@ def create_inventory_item(mechanic_id):
 
 
 @inventory_bp.route("/", methods=["GET"])
-@cache.cached(timeout=120)
 def get_inventory_items():
-    inventory_items = db.session.query(Inventory).order_by(Inventory.id).all()
-    return inventories_schema.jsonify(inventory_items), 200
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        query = select(Inventory)
+        inventory_items = db.session.execute(query).scalars().paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False,
+        )
+        return inventories_schema.jsonify(inventory_items.items), 200
+    
+    except:
+        query = select(Inventory)
+        inventory_items = db.session.execute(query).scalars().all()
+        return inventories_schema.jsonify(inventory_items), 200
 
 
 @inventory_bp.route("/<int:inventory_id>", methods=["GET"])
@@ -35,9 +48,7 @@ def get_inventory_item(inventory_id):
     inventory_item = db.session.get(Inventory, inventory_id)
     if inventory_item is None:
         return jsonify({"error": "Inventory item not found."}), 404
-
     return inventory_schema.jsonify(inventory_item), 200
-
 
 @inventory_bp.route("/<int:inventory_id>", methods=["PUT"])
 @mechanic_token_required

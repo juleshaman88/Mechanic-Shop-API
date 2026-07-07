@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -12,6 +12,7 @@ from .schemas import mechanic_login_schema, mechanic_schema, mechanics_schema
 
 
 @mechanic_bp.route("/", methods=["POST"])
+@limiter.limit("5 per hour")
 def create_mechanic():
     try:
         mechanic_data = mechanic_schema.load(request.get_json())
@@ -43,17 +44,17 @@ def create_mechanic():
 @mechanic_bp.route("/", methods=["GET"])
 @cache.cached(timeout=60)
 def get_mechanics():
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 10, type=int)
-
-    pagination = db.session.query(Mechanic).order_by(Mechanic.id).paginate(
-        page=page,
-        per_page=per_page,
-        error_out=False,
-    )
-    mechanics = pagination.items
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        query = select(Mechanic)
+        mechanics = db.paginate(query, page=page, per_page=per_page)
+        return mechanics_schema.jsonify(mechanics.items), 200
+    
+    except:
+        query = select(Mechanic)
+    mechanics = db.session.execute(query).scalars().all()
     return mechanics_schema.jsonify(mechanics), 200
-
 
 @mechanic_bp.route("/login", methods=["POST"])
 @limiter.limit("5 per half hour")

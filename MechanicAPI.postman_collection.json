@@ -17,7 +17,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/",
+              "raw": "http://127.0.0.1:5000/mechanics?page=1&per_page=10",
               "protocol": "http",
               "host": [
                 "127",
@@ -27,8 +27,17 @@
               ],
               "port": "5000",
               "path": [
-                "mechanics",
-                ""
+                "mechanics"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
               ]
             }
           },
@@ -54,7 +63,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Susette Summers\",\r\n    \"email\": \"sue.summers@gmail.com\",\r\n    \"password\": \"mechanic123\",\r\n    \"phone\": \"360-972-4820\",\r\n    \"salary\": 65000\r\n}",
+              "raw": "{\r\n  \"name\": \"Jules Haman\",\r\n  \"email\": \"jules.ham@gmail.com\",\r\n  \"password\": \"HamAndEggs12!\",\r\n  \"phone\": \"459-194-0216\",\r\n  \"salary\": 32.0\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -80,13 +89,13 @@
           "response": []
         },
         {
-          "name": "Mechanic Login",
+          "name": "Mechanic Token Post",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"sue.summers@gmail.com\",\r\n    \"password\": \"mechanic123\"\r\n}",
+              "raw": "{\r\n\"email\": \"jules.ham@gmail.com\",\r\n\"password\": \"HamAndEggs12!\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -112,13 +121,23 @@
           "response": []
         },
         {
-          "name": "Mechanic Put",
+          "name": "Mechanic Token Put",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{json_web_token_0qht}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Sampson Fisher\"\r\n}",
+              "raw": "{\r\n    \"phone\": \"956-764-7321\",\r\n    \"salary\": \"34.00\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -126,7 +145,7 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/3",
+              "raw": "http://127.0.0.1:5000/mechanics/9",
               "protocol": "http",
               "host": [
                 "127",
@@ -137,173 +156,17 @@
               "port": "5000",
               "path": [
                 "mechanics",
-                "3"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Customers",
-      "item": [
-        {
-          "name": "Customer Post",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Avery Cole\",\r\n    \"email\": \"avery.cole@gmail.com\",\r\n    \"password\": \"customer123\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://127.0.0.1:5000/customers/",
-              "protocol": "http",
-              "host": [
-                "127",
-                "0",
-                "0",
-                "1"
-              ],
-              "port": "5000",
-              "path": [
-                "customers",
-                ""
+                "9"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Customer Login",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"email\": \"avery.cole@gmail.com\",\r\n    \"password\": \"customer123\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://127.0.0.1:5000/customers/login",
-              "protocol": "http",
-              "host": [
-                "127",
-                "0",
-                "0",
-                "1"
-              ],
-              "port": "5000",
-              "path": [
-                "customers",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "My Tickets",
+          "name": "Mechanics Ranked",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer <customer-token>",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://127.0.0.1:5000/customers/my-tickets",
-              "protocol": "http",
-              "host": [
-                "127",
-                "0",
-                "0",
-                "1"
-              ],
-              "port": "5000",
-              "path": [
-                "customers",
-                "my-tickets"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Inventory",
-      "item": [
-        {
-          "name": "Inventory Get",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://127.0.0.1:5000/inventory/",
-              "protocol": "http",
-              "host": [
-                "127",
-                "0",
-                "0",
-                "1"
-              ],
-              "port": "5000",
-              "path": [
-                "inventory",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Inventory Post",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer <mechanic-token>",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Oil Filter\",\r\n    \"price\": 19.99\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://127.0.0.1:5000/inventory/",
-              "protocol": "http",
-              "host": [
-                "127",
-                "0",
-                "0",
-                "1"
-              ],
-              "port": "5000",
-              "path": [
-                "inventory",
-                ""
-              ]
-            }
+            "header": []
           },
           "response": []
         }
@@ -319,7 +182,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"vin\": \"1HEPW18102750129T\",\r\n    \"service_date\": \"2026-08-20\",\r\n    \"description\": \"Oil change and cabin air filter replacement.\",\r\n    \"status\": \"To Do.\" \r\n}",
+              "raw": "{\r\n    \"vin\": \"KM8J33A42LU50192J\",\r\n    \"service_date\": \"2026-07-06\",\r\n    \"description\": \"A/C system recharge and blower motor repair.\",\r\n    \"status\": \"In Progress\"\r\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -350,7 +213,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service_tickets/",
+              "raw": "http://127.0.0.1:5000/service_tickets",
               "protocol": "http",
               "host": [
                 "127",
@@ -360,8 +223,7 @@
               ],
               "port": "5000",
               "path": [
-                "service_tickets",
-                ""
+                "service_tickets"
               ]
             }
           },
@@ -373,7 +235,7 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service_tickets/4/assign-mechanic/5",
+              "raw": "http://127.0.0.1:5000/service_tickets/18/assign-mechanic/8",
               "protocol": "http",
               "host": [
                 "127",
@@ -384,21 +246,21 @@
               "port": "5000",
               "path": [
                 "service_tickets",
-                "4",
+                "18",
                 "assign-mechanic",
-                "5"
+                "8"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Ticket Remove Mechanic",
+          "name": "Ticket Assign Customer",
           "request": {
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service_tickets/1/remove-mechanic/3",
+              "raw": "http://127.0.0.1:5000/service_tickets/18/assign-customer/2",
               "protocol": "http",
               "host": [
                 "127",
@@ -409,42 +271,9 @@
               "port": "5000",
               "path": [
                 "service_tickets",
-                "1",
-                "remove-mechanic",
-                "3"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Ticket Edit Mechanics",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"add_ids\": [2, 4],\r\n    \"remove_ids\": [3]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://127.0.0.1:5000/service_tickets/4/edit",
-              "protocol": "http",
-              "host": [
-                "127",
-                "0",
-                "0",
-                "1"
-              ],
-              "port": "5000",
-              "path": [
-                "service_tickets",
-                "4",
-                "edit"
+                "18",
+                "assign-customer",
+                "2"
               ]
             }
           },
@@ -455,8 +284,17 @@
           "request": {
             "method": "PUT",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"add_part_ids\": [10]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "http://127.0.0.1:5000/service_tickets/4/add-part/2",
+              "raw": "http://127.0.0.1:5000/service_tickets/18/edit-parts",
               "protocol": "http",
               "host": [
                 "127",
@@ -467,15 +305,301 @@
               "port": "5000",
               "path": [
                 "service_tickets",
-                "4",
-                "add-part",
-                "2"
+                "18",
+                "edit-parts"
               ]
             }
           },
           "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Inventory Post",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_secret_16vx}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"engine air filter\",\r\n    \"price\": \"10.00\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/inventory",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "inventory"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inventory Get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/inventory?page=2&per_page=10",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "inventory"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inventory by ID Get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/inventory/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "inventory",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inventory ID Put",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_secret_16vx}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Excessive service fee.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/inventory/10",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "inventory",
+                "10"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "Customer Post",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_secret_16vx}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Fiona Gallagher\",\r\n    \"email\": \"gallagher.fiona@gmail.com\",\r\n    \"password\": \"SouthSidePride123?\"\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/customers",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/customers?page=1%per_page=10",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1%per_page=10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Token Post",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Cedric Finch\",\r\n    \"email\": \"finch.cedric@gmail.com\",\r\n    \"password\": \"Thistle&Thyme44\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:5000/customers/login",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "customers",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Customer Ticket Get",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "auth_secret_0qht",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0qht",
+      "secret": true
+    },
+    {
+      "key": "auth_secret_16vx",
+      "secret": true
     }
   ]
 }
