@@ -166,7 +166,22 @@
           "name": "Mechanics Ranked",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/mechanics/ranked",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "mechanics",
+                "ranked"
+              ]
+            }
           },
           "response": []
         }
@@ -235,7 +250,7 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service_tickets/18/assign-mechanic/8",
+              "raw": "http://127.0.0.1:5000/service_tickets/18/assign-mechanic/4",
               "protocol": "http",
               "host": [
                 "127",
@@ -248,7 +263,7 @@
                 "service_tickets",
                 "18",
                 "assign-mechanic",
-                "8"
+                "4"
               ]
             }
           },
@@ -309,14 +324,6 @@
                 "edit-parts"
               ]
             }
-          },
-          "response": []
-        },
-        {
-          "name": "New Request",
-          "request": {
-            "method": "GET",
-            "header": []
           },
           "response": []
         }
@@ -462,14 +469,6 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "New Request",
-          "request": {
-            "method": "GET",
-            "header": []
-          },
-          "response": []
         }
       ]
     },
@@ -580,12 +579,45 @@
         {
           "name": "Customer Ticket Get",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{supabase_service_role_api_key_0886}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:5000/customers/my-tickets",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "5000",
+              "path": [
+                "customers",
+                "my-tickets"
+              ]
+            }
           },
           "response": []
         }
       ]
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
     }
   ],
   "variable": [
@@ -599,6 +631,10 @@
     },
     {
       "key": "auth_secret_16vx",
+      "secret": true
+    },
+    {
+      "key": "supabase_service_role_api_key_0886",
       "secret": true
     }
   ]
