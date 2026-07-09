@@ -4,5 +4,6 @@ Flask-Limiter
 Flask-Marshmallow
 Flask-SQLAlchemy
 marshmallow
+marshmallow-sqlalchemy
 mysql-connector-python
 python-jose
