@@ -1,9 +1,12 @@
+import os
+
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 from flask import current_app, jsonify, request
 from jose import JWTError, jwt
 
+SECRET_KEY = os.environ.get('SECRET_KEY') or "super secret secrets"
 
 def encode_token(customer_id):
     payload = {
