@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 import config
 from .extensions import cache, limiter, ma
 from .blueprints.customer import customer_bp
@@ -42,10 +42,21 @@ def create_app(config_name="DevelopmentConfig"):
     app.register_blueprint(service_ticket_bp, url_prefix='/service_tickets')
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
+    @app.get("/")
+    def root():
+        return jsonify(
+            {
+                "message": "Mechanic Shop API is running.",
+                "docs": "/api/docs/",
+                "customers": "/customers/",
+            }
+        ), 200
+
+    @app.get("/healthz")
+    def healthz():
+        return jsonify({"status": "ok"}), 200
+
     return app
 
-
-# Render can sometimes keep an old `gunicorn app:app` start command.
-# Expose a package-level WSGI app so both `app:app` and `flask_app:app` work.
 default_config = "ProductionConfig" if os.getenv("RENDER") else "DevelopmentConfig"
 app = create_app(os.getenv("FLASK_CONFIG", default_config))
