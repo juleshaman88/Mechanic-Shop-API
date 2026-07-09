@@ -21,7 +21,9 @@ class DevelopmentConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///testing.db'
     TESTING = True
+    CACHE_TYPE = "SimpleCache"
 
 
 class ProductionConfig(BaseConfig):
