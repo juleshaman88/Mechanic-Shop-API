@@ -27,7 +27,7 @@ class Mechanic(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(db.String(120), nullable=False)
     email: Mapped[str] = mapped_column(db.String(255), nullable=False, unique=True)
-    password: Mapped[str | None] = mapped_column(db.String(255), nullable=True)
+    password: Mapped[str | None] = mapped_column(db.String(255), nullable=False)
     phone: Mapped[str] = mapped_column(db.String(30), nullable=False)
     salary: Mapped[float] = mapped_column(db.Float, nullable=False)
 

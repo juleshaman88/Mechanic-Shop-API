@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ...extensions import cache, limiter
 from ...models import db, Mechanic, ServiceTicket
-from ...utils import encode_mechanic_token, mechanic_token_required
+from ...utils.utils import encode_mechanic_token, mechanic_token_required
 from . import mechanic_bp
 from .schemas import mechanic_login_schema, mechanic_schema, mechanics_schema
 
@@ -42,7 +42,6 @@ def create_mechanic():
 
 
 @mechanic_bp.route("/", methods=["GET"])
-@cache.cached(timeout=60)
 def get_mechanics():
     try:
         page = int(request.args.get("page", 1))

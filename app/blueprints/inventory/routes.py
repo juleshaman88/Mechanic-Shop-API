@@ -4,7 +4,7 @@ from marshmallow import ValidationError
 
 from ...extensions import cache
 from ...models import Inventory, db
-from ...utils import mechanic_token_required
+from ...utils.utils import mechanic_token_required
 from . import inventory_bp
 from .schemas import inventories_schema, inventory_schema
 

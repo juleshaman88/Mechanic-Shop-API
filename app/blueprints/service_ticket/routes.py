@@ -25,7 +25,6 @@ def create_service_ticket():
 
 
 @service_ticket_bp.route("/", methods=["GET"])
-@cache.cached(timeout=60)
 def get_service_tickets():
     try:
         page = int(request.args.get("page", 1))

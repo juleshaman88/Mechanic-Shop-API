@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from ...extensions import limiter, cache
 from ...models import Customer, ServiceTicket, db
-from ...utils import encode_token, token_required
+from ...utils.utils import encode_token, token_required
 from . import customer_bp
 from .schemas import customer_schema, customers_schema, login_schema
 from ..service_ticket.schemas import service_tickets_schema
@@ -44,7 +44,6 @@ def login_customer():
 
 
 @customer_bp.route("/", methods=["GET"])
-@cache.cached(timeout=15)
 def get_customers():
     try:
         page = int(request.args.get("page", 1))

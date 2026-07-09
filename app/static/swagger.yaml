@@ -1,0 +1,805 @@
+swagger: '2.0'
+info:
+  title: Mechanic Shop API
+  description: REST API for customers, mechanics, inventory, and service tickets.
+  version: 1.0.0
+host: 127.0.0.1:5000
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: 'Use format: Bearer <token>'
+
+paths:
+  /customers:
+    post:
+      tags:
+        - Customers
+      summary: Create a customer
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        201:
+          description: Customer created
+          schema:
+            $ref: '#/definitions/Customer'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Customers
+      summary: List customers
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          required: false
+          default: 1
+        - in: query
+          name: per_page
+          type: integer
+          required: false
+          default: 10
+      responses:
+        200:
+          description: Customer list
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Customer'
+
+  /customers/login:
+    post:
+      tags:
+        - Customers
+      summary: Login customer
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/LoginCredentials'
+      responses:
+        200:
+          description: Login success
+          schema:
+            $ref: '#/definitions/CustomerLoginResponse'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /customers/my-tickets:
+    get:
+      tags:
+        - Customers
+      summary: Get current customer's tickets
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Ticket list for authenticated customer
+          schema:
+            $ref: '#/definitions/CustomerTicketsResponse'
+        401:
+          description: Missing or invalid customer token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /mechanics:
+    post:
+      tags:
+        - Mechanics
+      summary: Create a mechanic
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateMechanicPayload'
+      responses:
+        201:
+          description: Mechanic created
+          schema:
+            $ref: '#/definitions/Mechanic'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        409:
+          description: Email already exists
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Mechanics
+      summary: List mechanics
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          required: false
+          default: 1
+        - in: query
+          name: per_page
+          type: integer
+          required: false
+          default: 10
+      responses:
+        200:
+          description: Mechanic list
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Mechanic'
+
+  /mechanics/login:
+    post:
+      tags:
+        - Mechanics
+      summary: Login mechanic
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/LoginCredentials'
+      responses:
+        200:
+          description: Login success
+          schema:
+            $ref: '#/definitions/MechanicLoginResponse'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /mechanics/ranked:
+    get:
+      tags:
+        - Mechanics
+      summary: List mechanics ranked by ticket count
+      responses:
+        200:
+          description: Ranked mechanics
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Mechanic'
+
+  /mechanics/{id}:
+    put:
+      tags:
+        - Mechanics
+      summary: Update a mechanic
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMechanicPayload'
+      responses:
+        200:
+          description: Mechanic updated
+          schema:
+            $ref: '#/definitions/Mechanic'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Missing or invalid mechanic token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: Mechanic not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Mechanics
+      summary: Delete a mechanic
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Mechanic deleted
+          schema:
+            $ref: '#/definitions/MessageResponse'
+        401:
+          description: Missing or invalid mechanic token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: Mechanic not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /inventory:
+    post:
+      tags:
+        - Inventory
+      summary: Create an inventory item
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateInventoryPayload'
+      responses:
+        201:
+          description: Inventory item created
+          schema:
+            $ref: '#/definitions/InventoryItem'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Missing or invalid mechanic token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Inventory
+      summary: List inventory items
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          required: false
+          default: 1
+        - in: query
+          name: per_page
+          type: integer
+          required: false
+          default: 10
+      responses:
+        200:
+          description: Inventory list
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/InventoryItem'
+
+  /inventory/{inventory_id}:
+    get:
+      tags:
+        - Inventory
+      summary: Get one inventory item
+      parameters:
+        - in: path
+          name: inventory_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Inventory item
+          schema:
+            $ref: '#/definitions/InventoryItem'
+        404:
+          description: Inventory item not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      tags:
+        - Inventory
+      summary: Update an inventory item
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: inventory_id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateInventoryPayload'
+      responses:
+        200:
+          description: Inventory item updated
+          schema:
+            $ref: '#/definitions/InventoryItem'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Missing or invalid mechanic token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: Inventory item not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - Inventory
+      summary: Delete an inventory item
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: inventory_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Inventory item deleted
+          schema:
+            $ref: '#/definitions/MessageResponse'
+        401:
+          description: Missing or invalid mechanic token
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: Inventory item not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /service_tickets:
+    post:
+      tags:
+        - Service Tickets
+      summary: Create a service ticket
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateServiceTicketPayload'
+      responses:
+        201:
+          description: Service ticket created
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        400:
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - Service Tickets
+      summary: List service tickets
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          required: false
+          default: 1
+        - in: query
+          name: per_page
+          type: integer
+          required: false
+          default: 10
+      responses:
+        200:
+          description: Service ticket list
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ServiceTicket'
+
+  /service_tickets/{ticket_id}/assign-mechanic/{mechanic_id}:
+    put:
+      tags:
+        - Service Tickets
+      summary: Assign a mechanic to a ticket
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          type: integer
+        - in: path
+          name: mechanic_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Ticket updated
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        404:
+          description: Ticket or mechanic not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /service_tickets/{ticket_id}/remove-mechanic/{mechanic_id}:
+    put:
+      tags:
+        - Service Tickets
+      summary: Remove a mechanic from a ticket
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          type: integer
+        - in: path
+          name: mechanic_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Ticket updated
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        400:
+          description: Mechanic not assigned to ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        404:
+          description: Ticket or mechanic not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /service_tickets/{ticket_id}/assign-customer/{customer_id}:
+    put:
+      tags:
+        - Service Tickets
+      summary: Assign a customer to a ticket
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          type: integer
+        - in: path
+          name: customer_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Ticket updated
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        404:
+          description: Ticket or customer not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /service_tickets/{ticket_id}/add-part/{inventory_id}:
+    put:
+      tags:
+        - Service Tickets
+      summary: Add one part to a ticket
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          type: integer
+        - in: path
+          name: inventory_id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Ticket updated
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        404:
+          description: Ticket or inventory item not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /service_tickets/{ticket_id}/edit:
+    put:
+      tags:
+        - Service Tickets
+      summary: Add and remove mechanics on a ticket in one request
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/EditTicketMechanicsPayload'
+      responses:
+        200:
+          description: Ticket updated
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        404:
+          description: Ticket or mechanic not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /service_tickets/{ticket_id}/edit-parts:
+    put:
+      tags:
+        - Service Tickets
+      summary: Add and remove parts on a ticket in one request
+      parameters:
+        - in: path
+          name: ticket_id
+          required: true
+          type: integer
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/EditTicketPartsPayload'
+      responses:
+        200:
+          description: Ticket updated
+          schema:
+            $ref: '#/definitions/ServiceTicket'
+        404:
+          description: Ticket or inventory item not found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+definitions:
+  LoginCredentials:
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+      - email
+      - password
+
+  Customer:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      email:
+        type: string
+      service_ticket_ids:
+        type: array
+        items:
+          type: integer
+
+  Mechanic:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      salary:
+        type: number
+        format: float
+      service_ticket_ids:
+        type: array
+        items:
+          type: integer
+      ticket_count:
+        type: integer
+
+  InventoryItem:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+        format: float
+
+  ServiceTicket:
+    type: object
+    properties:
+      id:
+        type: integer
+      vin:
+        type: string
+      service_date:
+        type: string
+        format: date
+      description:
+        type: string
+      status:
+        type: string
+      customer_id:
+        type: integer
+      mechanic_ids:
+        type: array
+        items:
+          type: integer
+      inventory_ids:
+        type: array
+        items:
+          type: integer
+
+  CreateCustomerPayload:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    required:
+      - name
+      - email
+      - password
+
+  CreateMechanicPayload:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      salary:
+        type: number
+        format: float
+      password:
+        type: string
+    required:
+      - name
+      - email
+      - phone
+      - salary
+
+  UpdateMechanicPayload:
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      salary:
+        type: number
+        format: float
+      password:
+        type: string
+
+  CreateInventoryPayload:
+    type: object
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+        format: float
+    required:
+      - name
+      - price
+
+  UpdateInventoryPayload:
+    type: object
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+        format: float
+
+  CreateServiceTicketPayload:
+    type: object
+    properties:
+      vin:
+        type: string
+      service_date:
+        type: string
+        format: date
+      description:
+        type: string
+      status:
+        type: string
+      customer_id:
+        type: integer
+    required:
+      - vin
+      - service_date
+      - description
+      - status
+      - customer_id
+
+  EditTicketMechanicsPayload:
+    type: object
+    properties:
+      add_ids:
+        type: array
+        items:
+          type: integer
+      remove_ids:
+        type: array
+        items:
+          type: integer
+
+  EditTicketPartsPayload:
+    type: object
+    properties:
+      add_part_ids:
+        type: array
+        items:
+          type: integer
+      remove_part_ids:
+        type: array
+        items:
+          type: integer
+
+  CustomerLoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+
+  MechanicLoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+      mechanic:
+        $ref: '#/definitions/Mechanic'
+
+  CustomerTicketsResponse:
+    type: object
+    properties:
+      customer_id:
+        type: integer
+      service_tickets:
+        type: array
+        items:
+          $ref: '#/definitions/ServiceTicket'
+
+  MessageResponse:
+    type: object
+    properties:
+      message:
+        type: string
+
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        type: string
