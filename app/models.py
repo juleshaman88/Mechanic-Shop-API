@@ -30,14 +30,6 @@ class Mechanic(Base):
     password: Mapped[str | None] = mapped_column(db.String(255), nullable=False)
     phone: Mapped[str] = mapped_column(db.String(30), nullable=False)
     salary: Mapped[float] = mapped_column(db.Float, nullable=False)
-    service_ticket_id: Mapped[int | None] = mapped_column(
-        db.ForeignKey("service_tickets.id"),
-        nullable=True,
-    )
-
-    primary_service_ticket: Mapped["ServiceTicket | None"] = relationship(
-        foreign_keys=[service_ticket_id]
-    )
 
     service_tickets: Mapped[List["ServiceTicket"]] = relationship(
         secondary=service_mechanic,

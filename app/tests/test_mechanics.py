@@ -22,32 +22,28 @@ class TestMechanics(unittest.TestCase):
                 email="test@example.com",
                 password=generate_password_hash("password"),
                 phone="123-456-7890",
-                salary="25.00",
-                service_ticket_id=None
+                salary="25.00"
             )
             self.mechanic1 = Mechanic(
                 name="Mechanic One",
                 email="mechanic.one@gmail.com",
                 password=generate_password_hash("password1"),
                 phone="111-111-1111",
-                salary="20.00",
-                service_ticket_id=None
+                salary="20.00"
             )
             self.mechanic2 = Mechanic(
                 name="Mechanic Two",
                 email="mechanic.two@gmail.com",
                 password=generate_password_hash("password2"),
                 phone="222-222-2222",
-                salary="30.00",
-                service_ticket_id=None
+                salary="30.00"
             )
             self.mechanic3 = Mechanic(
                 name="Mechanic Three",
                 email="mechanic.three@gmail.com",
                 password=generate_password_hash("password3"),
                 phone="333-333-3333",
-                salary="25.00",
-                service_ticket_id=None
+                salary="25.00"
             )
             db.session.add_all([self.mechanic, self.mechanic1, self.mechanic2, self.mechanic3])
             db.session.commit()

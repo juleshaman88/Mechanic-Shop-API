@@ -41,7 +41,7 @@ def create_mechanic():
     return mechanic_schema.jsonify(mechanic), 201
 
 
-@mechanic_bp.route("/", methods=["GET"])
+@mechanic_bp.route("/", methods=["GET"], strict_slashes=False)
 def get_mechanics():
     try:
         page = int(request.args.get("page", 1))
@@ -49,8 +49,8 @@ def get_mechanics():
         query = select(Mechanic)
         mechanics = db.paginate(query, page=page, per_page=per_page)
         return mechanics_schema.jsonify(mechanics.items), 200
-    
-    except:
+
+    except (TypeError, ValueError):
         query = select(Mechanic)
     mechanics = db.session.execute(query).scalars().all()
     return mechanics_schema.jsonify(mechanics), 200
