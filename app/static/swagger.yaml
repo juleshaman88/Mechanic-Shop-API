@@ -3,10 +3,10 @@ info:
   title: Mechanic Shop API
   description: REST API for customers, mechanics, inventory, and service tickets.
   version: 1.0.0
-host: 127.0.0.1:5000
+host: "mechanic-shop-api-4ig7.onrender.com"
 basePath: /
 schemes:
-  - http
+  - "https"
 consumes:
   - application/json
 produces:
@@ -25,6 +25,7 @@ paths:
       tags:
         - Customers
       summary: Create a customer
+      description: Creates a new customer account using name, email, and password.
       parameters:
         - in: body
           name: body
@@ -36,14 +37,24 @@ paths:
           description: Customer created
           schema:
             $ref: '#/definitions/Customer'
+          examples:
+            application/json:
+              id: 1
+              name: John Doe
+              email: john.doe@gmail.com
+              service_ticket_ids: []
         400:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
     get:
       tags:
         - Customers
       summary: List customers
+      description: Returns a paginated list of customers. If pagination values are invalid, all customers are returned.
       parameters:
         - in: query
           name: page
@@ -62,12 +73,19 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Customer'
+          examples:
+            application/json:
+              - id: 1
+                name: test user
+                email: test@example.com
+                service_ticket_ids: [1]
 
   /customers/login:
     post:
       tags:
         - Customers
       summary: Login customer
+      description: Authenticates a customer and returns a bearer token and customer profile data.
       parameters:
         - in: body
           name: body
@@ -79,20 +97,35 @@ paths:
           description: Login success
           schema:
             $ref: '#/definitions/CustomerLoginResponse'
+          examples:
+            application/json:
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              customer:
+                id: 1
+                name: test user
+                email: test@example.com
+                service_ticket_ids: [1]
         400:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
         401:
           description: Invalid credentials
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Invalid email or password.
 
   /customers/my-tickets:
     get:
       tags:
         - Customers
       summary: Get current customer's tickets
+      description: Returns all service tickets associated with the authenticated customer token.
       security:
         - BearerAuth: []
       responses:
@@ -100,16 +133,32 @@ paths:
           description: Ticket list for authenticated customer
           schema:
             $ref: '#/definitions/CustomerTicketsResponse'
+          examples:
+            application/json:
+              customer_id: 1
+              service_tickets:
+                - id: 1
+                  vin: 1HGCM82633A123456
+                  service_date: '2023-08-15'
+                  description: Brake pads replacement
+                  status: Pending
+                  customer_id: 1
+                  mechanic_ids: [1]
+                  inventory_ids: [1]
         500:
           description: Failed to retrieve service tickets
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to retrieve service tickets.
 
   /mechanics:
     post:
       tags:
         - Mechanics
       summary: Create a mechanic
+      description: Creates a new mechanic record. Rejects duplicate mechanic emails.
       parameters:
         - in: body
           name: body
@@ -121,18 +170,34 @@ paths:
           description: Mechanic created
           schema:
             $ref: '#/definitions/Mechanic'
+          examples:
+            application/json:
+              id: 2
+              name: John Doe
+              email: john.doe@gmail.com
+              phone: 123-456-7890
+              salary: 25.0
+              service_ticket_ids: []
+              ticket_count: 0
         400:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
         409:
           description: Mechanic with that email already exists
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: A mechanic with that email already exists.
     get:
       tags:
         - Mechanics
       summary: List mechanics
+      description: Returns a paginated list of mechanics. If pagination values are invalid, all mechanics are returned.
       parameters:
         - in: query
           name: page
@@ -151,12 +216,22 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Mechanic'
+          examples:
+            application/json:
+              - id: 2
+                name: test user
+                email: test@example.com
+                phone: 123-456-7890
+                salary: 25.0
+                service_ticket_ids: [1]
+                ticket_count: 1
 
   /mechanics/login:
     post:
       tags:
         - Mechanics
       summary: Login mechanic
+      description: Authenticates a mechanic and returns a bearer token and mechanic profile data.
       parameters:
         - in: body
           name: body
@@ -168,20 +243,38 @@ paths:
           description: Login success
           schema:
             $ref: '#/definitions/MechanicLoginResponse'
+          examples:
+            application/json:
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              mechanic:
+                id: 2
+                name: test user
+                email: test@example.com
+                phone: 123-456-7890
+                salary: 25.0
+                service_ticket_ids: [1]
+                ticket_count: 1
         400:
           description: Validation error.
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
         401:
           description: Invalid email or password.
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Invalid email or password.
 
   /mechanics/ranked:
     get:
       tags:
         - Mechanics
       summary: List mechanics ranked by ticket count
+      description: Returns mechanics sorted by number of assigned service tickets, highest to lowest.
       responses:
         200:
           description: Ranked mechanics
@@ -189,12 +282,22 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Mechanic'
+          examples:
+            application/json:
+              - id: 2
+                name: test user
+                email: test@example.com
+                phone: 123-456-7890
+                salary: 25.0
+                service_ticket_ids: [1, 2]
+                ticket_count: 2
 
   /mechanics/{id}:
     put:
       tags:
         - Mechanics
       summary: Update a mechanic
+      description: Updates an existing mechanic by ID. Requires a valid mechanic bearer token.
       security:
         - BearerAuth: []
       parameters:
@@ -212,18 +315,34 @@ paths:
           description: Mechanic updated
           schema:
             $ref: '#/definitions/Mechanic'
+          examples:
+            application/json:
+              id: 2
+              name: Updated Name
+              email: test@example.com
+              phone: 987-654-3210
+              salary: 25.0
+              service_ticket_ids: [1]
+              ticket_count: 1
         400:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
         404:
           description: Mechanic not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Mechanic not found.
     delete:
       tags:
         - Mechanics
       summary: Delete a mechanic
+      description: Deletes a mechanic by ID. Requires a valid mechanic bearer token.
       security:
         - BearerAuth: []
       parameters:
@@ -236,16 +355,23 @@ paths:
           description: Mechanic deleted
           schema:
             $ref: '#/definitions/MessageResponse'
+          examples:
+            application/json:
+              message: Mechanic 1 deleted.
         404:
           description: Mechanic not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Mechanic not found.
 
   /inventory:
     post:
       tags:
         - Inventory
       summary: Create an inventory item
+      description: Creates a new inventory part record. Requires a valid mechanic bearer token.
       security:
         - BearerAuth: []
       parameters:
@@ -259,15 +385,24 @@ paths:
           description: Inventory item created
           schema:
             $ref: '#/definitions/InventoryItem'
+          examples:
+            application/json:
+              id: 3
+              name: Brake Pads
+              price: 29.99
         400:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
 
     get:
       tags:
         - Inventory
       summary: List inventory items
+      description: Returns a paginated list of inventory items. If pagination values are invalid, all items are returned.
       parameters:
         - in: query
           name: page
@@ -286,12 +421,18 @@ paths:
             type: array
             items:
               $ref: '#/definitions/InventoryItem'
+          examples:
+            application/json:
+              - id: 3
+                name: Brake Pads
+                price: 29.99
 
   /inventory/{inventory_id}:
     get:
       tags:
         - Inventory
       summary: Get one inventory item
+      description: Returns a single inventory item by ID.
       parameters:
         - in: path
           name: inventory_id
@@ -302,14 +443,23 @@ paths:
           description: Inventory item
           schema:
             $ref: '#/definitions/InventoryItem'
+          examples:
+            application/json:
+              id: 3
+              name: Brake Pads
+              price: 29.99
         404:
           description: Inventory item not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Inventory item not found.
     put:
       tags:
         - Inventory
       summary: Update an inventory item
+      description: Updates an inventory item by ID. Requires a valid mechanic bearer token.
       security:
         - BearerAuth: []
       parameters:
@@ -327,15 +477,24 @@ paths:
           description: Inventory item updated
           schema:
             $ref: '#/definitions/InventoryItem'
+          examples:
+            application/json:
+              id: 3
+              name: Updated Brake Pads
+              price: 34.99
         404:
           description: Inventory item not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Inventory item not found.
 
     delete:
       tags:
         - Inventory
       summary: Delete an inventory item
+      description: Deletes an inventory item by ID. Requires a valid mechanic bearer token.
       security:
         - BearerAuth: []
       parameters:
@@ -348,16 +507,23 @@ paths:
           description: Inventory item deleted
           schema:
             $ref: '#/definitions/MessageResponse'
+          examples:
+            application/json:
+              message: Inventory item 1 deleted.
         404:
           description: Inventory item not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Inventory item not found.
 
   /service_tickets:
     post:
       tags:
         - Service Tickets
       summary: Create a service ticket
+      description: Creates a new service ticket linked to a customer.
       parameters:
         - in: body
           name: body
@@ -369,14 +535,28 @@ paths:
           description: Service ticket created
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: []
+              inventory_ids: []
         400:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Validation failed for one or more fields.
     get:
       tags:
         - Service Tickets
       summary: List service tickets
+      description: Returns a paginated list of service tickets. If pagination values are invalid, all tickets are returned.
       parameters:
         - in: query
           name: page
@@ -395,12 +575,23 @@ paths:
             type: array
             items:
               $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              - id: 1
+                vin: 1HGCM82633A123456
+                service_date: '2023-08-15'
+                description: Brake pads replacement
+                status: Pending
+                customer_id: 1
+                mechanic_ids: [1]
+                inventory_ids: [1]
 
   /service_tickets/{ticket_id}/assign-mechanic/{mechanic_id}:
     put:
       tags:
         - Service Tickets
       summary: Assign a mechanic to a ticket
+      description: Assigns the specified mechanic to a service ticket.
       parameters:
         - in: path
           name: ticket_id
@@ -415,16 +606,30 @@ paths:
           description: Ticket updated
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: [1]
+              inventory_ids: [1]
         404:
           description: Ticket or mechanic not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Mechanic not found.
 
   /service_tickets/{ticket_id}/remove-mechanic/{mechanic_id}:
     put:
       tags:
         - Service Tickets
       summary: Remove a mechanic from a ticket
+      description: Removes the specified mechanic from a service ticket.
       parameters:
         - in: path
           name: ticket_id
@@ -439,20 +644,37 @@ paths:
           description: Ticket updated
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: []
+              inventory_ids: [1]
         400:
           description: Mechanic not assigned to ticket
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Mechanic is not assigned to this ticket.
         404:
           description: Ticket or mechanic not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Service ticket not found.
 
   /service_tickets/{ticket_id}/assign-customer/{customer_id}:
     put:
       tags:
         - Service Tickets
       summary: Assign a customer to a ticket
+      description: Reassigns a service ticket to the specified customer.
       parameters:
         - in: path
           name: ticket_id
@@ -467,16 +689,30 @@ paths:
           description: Ticket updated
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: [1]
+              inventory_ids: [1]
         404:
           description: Ticket or customer not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Customer not found.
 
   /service_tickets/{ticket_id}/add-part/{inventory_id}:
     put:
       tags:
         - Service Tickets
       summary: Add one part to a ticket
+      description: Adds one inventory part to a service ticket.
       parameters:
         - in: path
           name: ticket_id
@@ -491,16 +727,30 @@ paths:
           description: Ticket updated
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: [1]
+              inventory_ids: [1]
         404:
           description: Ticket or inventory item not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Inventory item not found.
 
   /service_tickets/{ticket_id}/edit:
     put:
       tags:
         - Service Tickets
       summary: Add and remove mechanics on a ticket in one request
+      description: Adds and removes mechanics on one service ticket in a single update payload.
       parameters:
         - in: path
           name: ticket_id
@@ -516,16 +766,30 @@ paths:
           description: Ticket updated
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: [1]
+              inventory_ids: [1]
         404:
           description: Ticket or mechanic not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Mechanic 9999 not found.
 
   /service_tickets/{ticket_id}/edit-parts:
     put:
       tags:
         - Service Tickets
       summary: Add and remove parts on a ticket in one request
+      description: Adds and removes inventory parts on one service ticket in a single update payload.
       parameters:
         - in: path
           name: ticket_id
@@ -541,10 +805,23 @@ paths:
           description: Ticket updated
           schema:
             $ref: '#/definitions/ServiceTicket'
+          examples:
+            application/json:
+              id: 1
+              vin: 1HGCM82633A123456
+              service_date: '2023-08-15'
+              description: Brake pads replacement
+              status: Pending
+              customer_id: 1
+              mechanic_ids: [1]
+              inventory_ids: [1]
         404:
           description: Ticket or inventory item not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Inventory item 9999 not found.
 
 definitions:
   LoginCredentials:
@@ -552,8 +829,10 @@ definitions:
     properties:
       email:
         type: string
+        example: test@example.com
       password:
         type: string
+        example: password
     required:
       - email
       - password
@@ -563,81 +842,106 @@ definitions:
     properties:
       id:
         type: integer
+        example: 1
       name:
         type: string
+        example: test user
       email:
         type: string
+        example: test@example.com
       service_ticket_ids:
         type: array
         items:
           type: integer
+        example: [1, 4]
 
   Mechanic:
     type: object
     properties:
       id:
         type: integer
+        example: 2
       name:
         type: string
+        example: test user
       email:
         type: string
+        example: test@example.com
       phone:
         type: string
+        example: 123-456-7890
       salary:
         type: number
         format: float
+        example: 25.0
       service_ticket_ids:
         type: array
         items:
           type: integer
+        example: [2, 5]
       ticket_count:
         type: integer
+        example: 2
 
   InventoryItem:
     type: object
     properties:
       id:
         type: integer
+        example: 3
       name:
         type: string
+        example: Brake Pads
       price:
         type: number
         format: float
+        example: 29.99
 
   ServiceTicket:
     type: object
     properties:
       id:
         type: integer
+        example: 1
       vin:
         type: string
+        example: 1HGCM82633A123456
       service_date:
         type: string
         format: date
+        example: '2023-08-15'
       description:
         type: string
+        example: Brake pads replacement
       status:
         type: string
+        example: Pending
       customer_id:
         type: integer
+        example: 1
       mechanic_ids:
         type: array
         items:
           type: integer
+        example: [1]
       inventory_ids:
         type: array
         items:
           type: integer
+        example: [1, 2]
 
   CreateCustomerPayload:
     type: object
     properties:
       name:
         type: string
+        example: John Doe
       email:
         type: string
+        example: john.doe@gmail.com
       password:
         type: string
+        example: securepassword
     required:
       - name
       - email
@@ -648,15 +952,20 @@ definitions:
     properties:
       name:
         type: string
+        example: John Doe
       email:
         type: string
+        example: john.doe@gmail.com
       phone:
         type: string
+        example: 123-456-7890
       salary:
         type: number
         format: float
+        example: 25.0
       password:
         type: string
+        example: securepassword
     required:
       - name
       - email
@@ -668,24 +977,31 @@ definitions:
     properties:
       name:
         type: string
+        example: Updated Name
       email:
         type: string
+        example: test@example.com
       phone:
         type: string
+        example: 987-654-3210
       salary:
         type: number
         format: float
+        example: 25.0
       password:
         type: string
+        example: password
 
   CreateInventoryPayload:
     type: object
     properties:
       name:
         type: string
+        example: Brake Pads
       price:
         type: number
         format: float
+        example: 29.99
     required:
       - name
       - price
@@ -695,24 +1011,31 @@ definitions:
     properties:
       name:
         type: string
+        example: Updated Brake Pads
       price:
         type: number
         format: float
+        example: 34.99
 
   CreateServiceTicketPayload:
     type: object
     properties:
       vin:
         type: string
+        example: 1HGCM82633A123456
       service_date:
         type: string
         format: date
+        example: '2023-08-15'
       description:
         type: string
+        example: Brake pads replacement
       status:
         type: string
+        example: Pending
       customer_id:
         type: integer
+        example: 1
     required:
       - vin
       - service_date
@@ -727,10 +1050,12 @@ definitions:
         type: array
         items:
           type: integer
+        example: [2]
       remove_ids:
         type: array
         items:
           type: integer
+        example: [4]
 
   EditTicketPartsPayload:
     type: object
@@ -739,16 +1064,19 @@ definitions:
         type: array
         items:
           type: integer
+        example: [3]
       remove_part_ids:
         type: array
         items:
           type: integer
+        example: [7]
 
   CustomerLoginResponse:
     type: object
     properties:
       token:
         type: string
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       customer:
         $ref: '#/definitions/Customer'
 
@@ -757,6 +1085,7 @@ definitions:
     properties:
       token:
         type: string
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       mechanic:
         $ref: '#/definitions/Mechanic'
 
@@ -765,6 +1094,7 @@ definitions:
     properties:
       customer_id:
         type: integer
+        example: 1
       service_tickets:
         type: array
         items:
@@ -775,9 +1105,12 @@ definitions:
     properties:
       message:
         type: string
+        example: Resource deleted successfully.
 
   ErrorResponse:
     type: object
     properties:
       error:
         type: string
+        example: Validation failed for one or more fields.
+

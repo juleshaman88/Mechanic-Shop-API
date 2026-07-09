@@ -4,7 +4,7 @@ from app import create_app
 from app.models import db
 from flask import Flask
 
-app = create_app('ProductionConfig')
+app = create_app(os.getenv("FLASK_CONFIG", "ProductionConfig"))
 
 with app.app_context():
     db.create_all()
