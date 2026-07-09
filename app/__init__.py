@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 import config
 from .extensions import cache, limiter, ma
@@ -41,3 +43,9 @@ def create_app(config_name="DevelopmentConfig"):
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     return app
+
+
+# Render can sometimes keep an old `gunicorn app:app` start command.
+# Expose a package-level WSGI app so both `app:app` and `flask_app:app` work.
+default_config = "ProductionConfig" if os.getenv("RENDER") else "DevelopmentConfig"
+app = create_app(os.getenv("FLASK_CONFIG", default_config))
