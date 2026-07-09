@@ -13,6 +13,7 @@ class ServiceTicketSchema(ma.SQLAlchemyAutoSchema):
 
     mechanic_ids = fields.Method("get_mechanic_ids", dump_only=True)
     inventory_ids = fields.Method("get_inventory_ids", dump_only=True)
+    customer_id = fields.Integer(required=True)
 
     def get_mechanic_ids(self, obj):
         return [mechanic.id for mechanic in obj.mechanics]

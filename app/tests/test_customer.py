@@ -8,7 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app import create_app
 from app.models import db, Customer
-from app.utils.utils import encode_customer_token
+from app.utils.utils import encode_token
 from werkzeug.security import generate_password_hash
 
 class TestCustomers(unittest.TestCase):
@@ -21,12 +21,11 @@ class TestCustomers(unittest.TestCase):
                 name="test user",
                 email="test@example.com",
                 password=generate_password_hash("password"),
-                phone="123-456-7890",
             )
             db.session.add(self.customer)
             db.session.commit()
             self.customer_id = self.customer.id
-            self.token = encode_customer_token(self.customer_id)
+            self.customer_token = encode_token(self.customer_id)
         self.client = self.app.test_client()
 
     def test_create_customer(self):
@@ -44,12 +43,11 @@ class TestCustomers(unittest.TestCase):
         customer_payload = {
             "name": "Jane Doe",
             "email": "123@gmail.com",
-            "password": "securepassword"
         }
 
         response = self.client.post("/customers/", json=customer_payload)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json, {"phone": ["Missing data for required field."]})
+        self.assertEqual(response.json, {"password": ["Missing data for required field."]})
 
     def test_login_customer(self):
         customer_payload = {
@@ -72,20 +70,23 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json, {"error": "Invalid email or password."})
 
-    def test_update_customer(self):
-        update_payload = {
-            "name": "Updated Name",
-            "phone": "987-654-3210"
-        }
+    def test_get_customers(self):
+        response = self.client.get("/customers/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json, list)
+        self.assertGreaterEqual(len(response.json), 1)
 
-        response = self.client.put(
-            f"/customers/{self.customer_id}",
-            json=update_payload,
-            headers={"Authorization": f"Bearer {self.token}"}
+    def test_get_my_tickets(self):
+        headers = {"Authorization": f"Bearer {self.customer_token}"}
+        response = self.client.get(
+            f"/customers/my-tickets",
+            headers=headers
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["name"], "Updated Name")
-        self.assertEqual(response.json["phone"], "987-654-3210")
+        self.assertIsInstance(response.json, dict)
+        self.assertEqual(response.json["customer_id"], self.customer_id)
+        self.assertIn("service_tickets", response.json)
+        self.assertIsInstance(response.json["service_tickets"], list)
 
 
 if __name__ == "__main__":

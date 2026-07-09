@@ -61,5 +61,8 @@ def get_customers():
 @customer_bp.route("/my-tickets", methods=["GET"])
 @token_required
 def get_my_tickets(customer_id):
-    tickets = db.session.query(ServiceTicket).filter_by(customer_id=customer_id).all()
-    return jsonify({"customer_id": customer_id, "service_tickets": service_tickets_schema.dump(tickets)}), 200
+    try:
+        tickets = db.session.query(ServiceTicket).filter_by(customer_id=customer_id).all()
+        return jsonify({"customer_id": customer_id, "service_tickets": service_tickets_schema.dump(tickets)}), 200
+    except:
+        return jsonify({"error": "Failed to retrieve service tickets."}), 500

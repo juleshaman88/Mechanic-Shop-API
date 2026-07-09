@@ -100,8 +100,8 @@ paths:
           description: Ticket list for authenticated customer
           schema:
             $ref: '#/definitions/CustomerTicketsResponse'
-        401:
-          description: Missing or invalid customer token
+        500:
+          description: Failed to retrieve service tickets
           schema:
             $ref: '#/definitions/ErrorResponse'
 
@@ -126,7 +126,7 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResponse'
         409:
-          description: Email already exists
+          description: Mechanic with that email already exists
           schema:
             $ref: '#/definitions/ErrorResponse'
     get:
@@ -169,11 +169,11 @@ paths:
           schema:
             $ref: '#/definitions/MechanicLoginResponse'
         400:
-          description: Validation error
+          description: Validation error.
           schema:
             $ref: '#/definitions/ErrorResponse'
         401:
-          description: Invalid credentials
+          description: Invalid email or password.
           schema:
             $ref: '#/definitions/ErrorResponse'
 
@@ -216,10 +216,6 @@ paths:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
-        401:
-          description: Missing or invalid mechanic token
-          schema:
-            $ref: '#/definitions/ErrorResponse'
         404:
           description: Mechanic not found
           schema:
@@ -240,10 +236,6 @@ paths:
           description: Mechanic deleted
           schema:
             $ref: '#/definitions/MessageResponse'
-        401:
-          description: Missing or invalid mechanic token
-          schema:
-            $ref: '#/definitions/ErrorResponse'
         404:
           description: Mechanic not found
           schema:
@@ -271,10 +263,7 @@ paths:
           description: Validation error
           schema:
             $ref: '#/definitions/ErrorResponse'
-        401:
-          description: Missing or invalid mechanic token
-          schema:
-            $ref: '#/definitions/ErrorResponse'
+
     get:
       tags:
         - Inventory
@@ -338,18 +327,11 @@ paths:
           description: Inventory item updated
           schema:
             $ref: '#/definitions/InventoryItem'
-        400:
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ErrorResponse'
-        401:
-          description: Missing or invalid mechanic token
-          schema:
-            $ref: '#/definitions/ErrorResponse'
         404:
           description: Inventory item not found
           schema:
             $ref: '#/definitions/ErrorResponse'
+
     delete:
       tags:
         - Inventory
@@ -366,10 +348,6 @@ paths:
           description: Inventory item deleted
           schema:
             $ref: '#/definitions/MessageResponse'
-        401:
-          description: Missing or invalid mechanic token
-          schema:
-            $ref: '#/definitions/ErrorResponse'
         404:
           description: Inventory item not found
           schema:
