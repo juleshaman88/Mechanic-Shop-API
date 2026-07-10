@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from marshmallow import ValidationError
 
 from ...extensions import cache
@@ -19,7 +20,12 @@ def create_inventory_item(mechanic_id):
 
     inventory_item = Inventory(**inventory_data)
     db.session.add(inventory_item)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create inventory item."}), 500
+
     cache.clear()
     return inventory_schema.jsonify(inventory_item), 201
 
@@ -65,7 +71,12 @@ def update_inventory_item(mechanic_id, inventory_id):
     for key, value in updated_data.items():
         setattr(inventory_item, key, value)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update inventory item."}), 500
+
     cache.clear()
     return inventory_schema.jsonify(inventory_item), 200
 
@@ -78,6 +89,11 @@ def delete_inventory_item(mechanic_id, inventory_id):
         return jsonify({"error": "Inventory item not found."}), 404
 
     db.session.delete(inventory_item)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to delete inventory item."}), 500
+
     cache.clear()
     return jsonify({"message": f"Inventory item {inventory_id} deleted."}), 200

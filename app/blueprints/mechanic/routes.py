@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ...extensions import cache, limiter
@@ -36,6 +36,9 @@ def create_mechanic():
     except IntegrityError:
         db.session.rollback()
         return jsonify({"error": "A mechanic with that email already exists."}), 409
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create mechanic."}), 500
 
     cache.clear()
     return mechanic_schema.jsonify(mechanic), 201
@@ -101,7 +104,15 @@ def update_mechanic(mechanic_id, id):
     for key, value in updated_data.items():
         setattr(mechanic, key, value)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "A mechanic with that email already exists."}), 409
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update mechanic."}), 500
+
     cache.clear()
     return mechanic_schema.jsonify(mechanic), 200
 
@@ -115,6 +126,11 @@ def delete_mechanic(mechanic_id, id):
         return jsonify({"error": "Mechanic not found."}), 404
 
     db.session.delete(mechanic)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to delete mechanic."}), 500
+
     cache.clear()
     return jsonify({"message": f"Mechanic {id} deleted."}), 200

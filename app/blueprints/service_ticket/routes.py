@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from marshmallow import ValidationError
 
 from ...extensions import cache, limiter
@@ -19,7 +20,12 @@ def create_service_ticket():
     service_ticket = ServiceTicket(**service_ticket_data)
 
     db.session.add(service_ticket)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(service_ticket), 201
 
@@ -53,7 +59,12 @@ def remove_mechanic(ticket_id, mechanic_id):
         return jsonify({"error": "Mechanic is not assigned to this ticket."}), 400
 
     ticket.mechanics.remove(mechanic)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(ticket), 200
 
@@ -82,7 +93,12 @@ def edit_mechanics_on_ticket(ticket_id):
         if mechanic in ticket.mechanics:
             ticket.mechanics.remove(mechanic)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(ticket), 200
 
@@ -100,7 +116,12 @@ def add_part_to_ticket(ticket_id, inventory_id):
     if part not in ticket.inventory:
         ticket.inventory.append(part)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(ticket), 200
 
@@ -129,7 +150,12 @@ def edit_parts_on_ticket(ticket_id):
         if part in ticket.inventory:
             ticket.inventory.remove(part)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(ticket), 200
 
@@ -145,7 +171,12 @@ def assign_customer(ticket_id, customer_id):
         return jsonify({"error": "Customer not found."}), 404
 
     ticket.customer_id = customer.id
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(ticket), 200
     
@@ -164,6 +195,11 @@ def assign_mechanic(ticket_id, mechanic_id):
         return jsonify({"message": "Mechanic already assigned to this ticket."}), 200
 
     ticket.mechanics.append(mechanic)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update service ticket."}), 500
+
     cache.clear()
     return service_ticket_schema.jsonify(ticket), 200

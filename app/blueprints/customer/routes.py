@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from marshmallow import ValidationError
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ...extensions import limiter, cache
@@ -19,11 +20,23 @@ def create_customer():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
+    existing_customer = db.session.query(Customer).filter_by(email=customer_data["email"]).first()
+    if existing_customer is not None:
+        return jsonify({"error": "A customer with that email already exists."}), 409
+
     customer_data["password"] = generate_password_hash(customer_data["password"])
     customer = Customer(**customer_data)
 
     db.session.add(customer)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"error": "A customer with that email already exists."}), 409
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "Failed to create customer."}), 500
+
     return customer_schema.jsonify(customer), 201
 
 

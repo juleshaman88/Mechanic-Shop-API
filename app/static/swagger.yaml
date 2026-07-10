@@ -50,6 +50,20 @@ paths:
           examples:
             application/json:
               error: Validation failed for one or more fields.
+        409:
+          description: Customer with that email already exists
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: A customer with that email already exists.
+        500:
+          description: Failed to create customer
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to create customer.
     get:
       tags:
         - Customers
@@ -193,6 +207,13 @@ paths:
           examples:
             application/json:
               error: A mechanic with that email already exists.
+        500:
+          description: Failed to create mechanic
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to create mechanic.
     get:
       tags:
         - Mechanics
@@ -338,6 +359,20 @@ paths:
           examples:
             application/json:
               error: Mechanic not found.
+        409:
+          description: Mechanic with that email already exists
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: A mechanic with that email already exists.
+        500:
+          description: Failed to update mechanic
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update mechanic.
     delete:
       tags:
         - Mechanics
@@ -365,6 +400,13 @@ paths:
           examples:
             application/json:
               error: Mechanic not found.
+        500:
+          description: Failed to delete mechanic
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to delete mechanic.
 
   /inventory:
     post:
@@ -397,6 +439,13 @@ paths:
           examples:
             application/json:
               error: Validation failed for one or more fields.
+        500:
+          description: Failed to create inventory item
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to create inventory item.
 
     get:
       tags:
@@ -455,6 +504,13 @@ paths:
           examples:
             application/json:
               error: Inventory item not found.
+        500:
+          description: Failed to update inventory item
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update inventory item.
     put:
       tags:
         - Inventory
@@ -489,6 +545,13 @@ paths:
           examples:
             application/json:
               error: Inventory item not found.
+        500:
+          description: Failed to delete inventory item
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to delete inventory item.
 
     delete:
       tags:
@@ -552,6 +615,13 @@ paths:
           examples:
             application/json:
               error: Validation failed for one or more fields.
+        500:
+          description: Failed to create service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to create service ticket.
     get:
       tags:
         - Service Tickets
@@ -623,6 +693,13 @@ paths:
           examples:
             application/json:
               error: Mechanic not found.
+        500:
+          description: Failed to update service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update service ticket.
 
   /service_tickets/{ticket_id}/remove-mechanic/{mechanic_id}:
     put:
@@ -668,6 +745,13 @@ paths:
           examples:
             application/json:
               error: Service ticket not found.
+        500:
+          description: Failed to update service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update service ticket.
 
   /service_tickets/{ticket_id}/assign-customer/{customer_id}:
     put:
@@ -706,6 +790,13 @@ paths:
           examples:
             application/json:
               error: Customer not found.
+        500:
+          description: Failed to update service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update service ticket.
 
   /service_tickets/{ticket_id}/add-part/{inventory_id}:
     put:
@@ -744,6 +835,13 @@ paths:
           examples:
             application/json:
               error: Inventory item not found.
+        500:
+          description: Failed to update service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update service ticket.
 
   /service_tickets/{ticket_id}/edit:
     put:
@@ -783,6 +881,13 @@ paths:
           examples:
             application/json:
               error: Mechanic 9999 not found.
+        500:
+          description: Failed to update service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update service ticket.
 
   /service_tickets/{ticket_id}/edit-parts:
     put:
@@ -822,6 +927,13 @@ paths:
           examples:
             application/json:
               error: Inventory item 9999 not found.
+        500:
+          description: Failed to update service ticket
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+          examples:
+            application/json:
+              error: Failed to update service ticket.
 
 definitions:
   LoginCredentials:

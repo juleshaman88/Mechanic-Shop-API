@@ -49,6 +49,17 @@ class TestCustomers(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json, {"password": ["Missing data for required field."]})
 
+    def test_duplicate_customer_creation(self):
+        customer_payload = {
+            "name": "Duplicate User",
+            "email": "test@example.com",
+            "password": "anotherpassword",
+        }
+
+        response = self.client.post("/customers/", json=customer_payload)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json, {"error": "A customer with that email already exists."})
+
     def test_login_customer(self):
         customer_payload = {
             "email": "test@example.com",
