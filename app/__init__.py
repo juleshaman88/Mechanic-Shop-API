@@ -60,8 +60,3 @@ def create_app(config_name="DevelopmentConfig"):
 
 default_config = "ProductionConfig" if os.getenv("RENDER") else "DevelopmentConfig"
 app = create_app(os.getenv("FLASK_CONFIG", default_config))
-
-# Keep database initialization consistent for both startup paths:
-# `gunicorn flask_app:app` and legacy `gunicorn app:app`.
-with app.app_context():
-    db.create_all()
