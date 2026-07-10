@@ -8,6 +8,30 @@ from jose import JWTError, jwt
 
 SECRET_KEY = os.environ.get('SECRET_KEY') or "super secret secrets"
 
+
+def _get_bearer_token_from_header():
+    auth_header = request.headers.get("Authorization", "").strip()
+    if not auth_header:
+        return None
+
+    parts = auth_header.split()
+    token = None
+
+    # Accept both "Bearer <token>" and raw token values for client compatibility.
+    if len(parts) == 2 and parts[0].lower() == "bearer":
+        token = parts[1]
+    elif len(parts) == 1:
+        token = parts[0]
+
+    if token is None:
+        return None
+
+    normalized_token = token.strip().strip('"').strip("'")
+    if not normalized_token:
+        return None
+
+    return normalized_token
+
 def encode_token(customer_id):
     payload = {
         "token_type": "customer",
@@ -29,12 +53,9 @@ def encode_mechanic_token(mechanic_id):
 def token_required(function):
     @wraps(function)
     def decorated(*args, **kwargs):
-        auth_header = request.headers.get("Authorization", "")
-
-        if not auth_header.startswith("Bearer "):
+        token = _get_bearer_token_from_header()
+        if token is None:
             return jsonify({"error": "Bearer token required."}), 401
-
-        token = auth_header.split(" ", 1)[1].strip()
 
         try:
             decoded_token = jwt.decode(
@@ -59,12 +80,9 @@ def token_required(function):
 def mechanic_token_required(function):
     @wraps(function)
     def decorated(*args, **kwargs):
-        auth_header = request.headers.get("Authorization", "")
-
-        if not auth_header.startswith("Bearer "):
+        token = _get_bearer_token_from_header()
+        if token is None:
             return jsonify({"error": "Bearer token required."}), 401
-
-        token = auth_header.split(" ", 1)[1].strip()
 
         try:
             decoded_token = jwt.decode(

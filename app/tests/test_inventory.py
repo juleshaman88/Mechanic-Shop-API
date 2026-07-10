@@ -118,6 +118,45 @@ class TestInventory(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_mechanic_login_token_works_on_inventory_endpoint(self):
+        login_payload = {
+            "email": "test@example.com",
+            "password": "password"
+        }
+        login_response = self.client.post("/mechanics/login", json=login_payload)
+        self.assertEqual(login_response.status_code, 200)
+
+        token = login_response.json["token"]
+        inventory_payload = {
+            "name": "From Login Token",
+            "price": "19.99"
+        }
+        response = self.client.post(
+            "/inventory/",
+            json=inventory_payload,
+            headers={"Authorization": f"Bearer {token}"}
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json["name"], "From Login Token")
+
+    def test_inventory_endpoint_accepts_raw_and_quoted_tokens(self):
+        payload = {"name": "Raw Header Part", "price": "39.99"}
+
+        raw_response = self.client.post(
+            "/inventory/",
+            json=payload,
+            headers={"Authorization": self.token}
+        )
+        self.assertEqual(raw_response.status_code, 201)
+
+        quoted_response = self.client.post(
+            "/inventory/",
+            json={"name": "Quoted Header Part", "price": "49.99"},
+            headers={"Authorization": f"Bearer \"{self.token}\""}
+        )
+        self.assertEqual(quoted_response.status_code, 201)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

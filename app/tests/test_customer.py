@@ -99,6 +99,38 @@ class TestCustomers(unittest.TestCase):
         self.assertIn("service_tickets", response.json)
         self.assertIsInstance(response.json["service_tickets"], list)
 
+    def test_get_my_tickets_accepts_lowercase_bearer_scheme(self):
+        headers = {"Authorization": f"bearer {self.customer_token}"}
+        response = self.client.get("/customers/my-tickets", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["customer_id"], self.customer_id)
+
+    def test_customer_login_token_works_on_my_tickets(self):
+        login_payload = {
+            "email": "test@example.com",
+            "password": "password"
+        }
+        login_response = self.client.post("/customers/login", json=login_payload)
+        self.assertEqual(login_response.status_code, 200)
+
+        token = login_response.json["token"]
+        response = self.client.get(
+            "/customers/my-tickets",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["customer_id"], self.customer_id)
+
+    def test_get_my_tickets_accepts_raw_token_header(self):
+        response = self.client.get(
+            "/customers/my-tickets",
+            headers={"Authorization": self.customer_token}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
