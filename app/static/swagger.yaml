@@ -142,6 +142,12 @@ paths:
       description: Returns all service tickets associated with the authenticated customer token.
       security:
         - BearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          type: string
+          description: 'Bearer token. Format: Bearer <token>'
       responses:
         200:
           description: Ticket list for authenticated customer
@@ -322,6 +328,11 @@ paths:
       security:
         - BearerAuth: []
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          type: string
+          description: 'Bearer token. Format: Bearer <token>'
         - in: path
           name: id
           required: true
@@ -381,6 +392,11 @@ paths:
       security:
         - BearerAuth: []
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          type: string
+          description: 'Bearer token. Format: Bearer <token>'
         - in: path
           name: id
           required: true
@@ -417,6 +433,11 @@ paths:
       security:
         - BearerAuth: []
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          type: string
+          description: 'Bearer token. Format: Bearer <token>'
         - in: body
           name: body
           required: true
@@ -519,6 +540,11 @@ paths:
       security:
         - BearerAuth: []
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          type: string
+          description: 'Bearer token. Format: Bearer <token>'
         - in: path
           name: inventory_id
           required: true
@@ -561,6 +587,11 @@ paths:
       security:
         - BearerAuth: []
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          type: string
+          description: 'Bearer token. Format: Bearer <token>'
         - in: path
           name: inventory_id
           required: true
